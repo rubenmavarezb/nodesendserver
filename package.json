@@ -11,6 +11,8 @@
   "author": "Ruben Mavarez",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.10",
+    "@types/express": "^4.17.11",
     "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
