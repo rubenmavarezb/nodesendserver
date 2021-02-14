@@ -1,6 +1,7 @@
 const multer = require('multer');
 const shortId = require('shortid');
 const fs = require('fs');
+const Links = require('../models/Link');
 
 
 
@@ -39,5 +40,26 @@ exports.deleteFile = async (req, res) => {
         fs.unlinkSync(__dirname + `/../uploads/${req.file}`)
     } catch (error) {
         console.log(error)
+    }
+}
+
+exports.download = async (req, res, next) => {
+
+    const link = await Links.findOne({name: req.params.file})
+
+    const file = __dirname + '/../uploads/' + req.params.file
+    res.download(file);
+
+    const { downloads, name } = link;
+
+    if(downloads === 1) {
+        req.file = name;
+
+        await Links.findOneAndRemove(link.id);
+        
+        next();
+    } else {
+        link.downloads--;
+        await link.save();
     }
 }

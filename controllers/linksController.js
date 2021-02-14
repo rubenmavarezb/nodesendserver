@@ -13,11 +13,11 @@ exports.newLink = async (req, res, next) => {
 
 
     //Save in DB
-    const { original_name } = req.body;
+    const { original_name, name } = req.body;
 
     const link = new Links();
     link.url = shortId.generate();
-    link.name = shortId.generate();
+    link.name = name;
     link.original_name = original_name;
     
 
@@ -46,6 +46,16 @@ exports.newLink = async (req, res, next) => {
     }
 }
 
+//Get all links
+exports.allLinks = async (req,res) => {
+    try {
+        const links = await Links.find({}).select('url -_id');
+        res.json({links})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 //Get link
 exports.getLink = async (req, res, next) => {
     const {url} = req.params;
@@ -59,16 +69,5 @@ exports.getLink = async (req, res, next) => {
     }
     res.json({file: link.name})
 
-    const { downloads, name } = link;
-
-    if(downloads === 1) {
-        req.file = name;
-
-        await Links.findOneAndRemove(req.params.url);
-        
-        next();
-    } else {
-        link.downloads--;
-        await link.save();
-    }
+    next();
 }
