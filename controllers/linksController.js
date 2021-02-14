@@ -67,7 +67,38 @@ exports.getLink = async (req, res, next) => {
         res.status(400).json({msg: "Link unavailable or doesn't exists"})
         return next();
     }
-    res.json({file: link.name})
+    res.json({file: link.name, password: false})
 
     next();
+}
+
+exports.hasPassword = async (req, res, next) => {
+    const {url} = req.params;
+
+    //Check if link exists
+    const link = await Links.findOne({ url });
+
+    if(!link) {
+        res.status(400).json({msg: "Link unavailable or doesn't exists"})
+        return next();
+    }
+
+    if(link.password) {
+        return res.json({password: true, link: link.url})
+    }
+
+    next();
+}
+
+exports.verifyPassword = async (req, res, next) => {
+    const { url } = req.params;
+    const { password } = req.body;
+
+    const link = await Links.findOne({url});
+
+    if(bcrypt.compareSync(password, link.password)){
+        next();
+    } else {
+        return res.status(401).json({msg: "Wrong password"})
+    }
 }
